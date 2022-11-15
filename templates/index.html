@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+      <script src="/static/jquery-3.6.1.js"></script>
+    </head>
+    <body>
+      <div class="container-sm">
+        <div  class="row align-items-start">
+          <div class="col">   
+          </div>
+          <div class="col text-center">
+            <h4>Generate A New Pokemon!</h4>
+            <div id="output">
+              <div id="name">
+              </div>
+              <div id="image">
+              </div>
+            </div>
+            <div class= "row align-items-center" style="display: none; margin: 5px;" id="loading">
+              <div class="col"> </div>
+              <div class="col h-100">
+                <div class="spinner-border" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+              <div class="col"></div>
+            </div>
+            <input type="button" id="go" value="Generate!" class="btn btn-secondary btn-lg" style="margin: 10px;"/>
+          </div>
+          <div class="col"></div>
+        </div>
+      </div>
+    <script>
+      jQuery(document).ready(function(){
+        var start = ['ma','pa','po','bla','ode','ordi','sna','te', 'og','spa','ini','tra', 'za','ni','na','gra','zu','gru'];
+        var mid = ['rd','st','nd','d','v','port', 'ment', 'did', 'cat', 'gob', 'jib', 'snib'];
+        var end = ['ix','on','o','ini','at','icid','ate','eon', 'ack', 'ler'];
+        $("#go").click(function(){
+          $("#go").prop('disabled', true)
+          $('#go').attr('value','Generating...')
+          var startrnd = Math.abs(Math.floor(Math.random() * start.length) -1);
+          var midrnd = Math.abs(Math.floor(Math.random() * mid.length)-1);
+          var endrnd = Math.abs(Math.floor(Math.random() * end.length) -1);
+          $('#output').hide();
+          $('#loading').fadeIn();
+          var name_raw = (start[startrnd] + mid[midrnd] + end[endrnd])
+          var name = name_raw.charAt(0).toUpperCase() + name_raw.slice(1);
+          getImage(name)
+          .then(() => {
+            $('img').on('load',() => {
+              $('#name').html("<b>"+name+"</b>");
+              $('#loading').hide();
+              $('#output').fadeIn(1000);
+              $('#go').attr('value','Make Another!')
+            });
+          });
+      })
+
+
+
+      async function getImage(input) {
+          var payload = JSON.stringify({'input': input});
+          await fetch("/get_image",
+          {
+            method: "post",
+            body: payload,
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          }).then(response => response.json()).then((data) => {
+            console.log(data);
+            $("#go").prop('disabled', false);
+            $('#image').html('<img width="200" src='+ data[0] + ' />');
+          })
+        }
+
+      });
+      </script>
+    </body>
+  </html>  
