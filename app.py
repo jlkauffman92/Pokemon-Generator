@@ -13,6 +13,11 @@ def hello_world():
 @app.route("/get_image", methods=['POST', 'GET'])
 def get_image():
     pinput = json.loads(request.data)['input']
+    pr = pastResults(pinput)
+
+    if pr:
+        return pr
+
     payload = json.dumps({"version": "3554d9e699e09693d3fa334a79c58be9a405dd021d3e11281256d53185868912",  "input": {"prompt" : pinput, "num_outputs" : 1}})
     headers = {'content-type': 'application/json', 'Authorization': f'Token {key}'}
     res = requests.post('https://api.replicate.com/v1/predictions', data=payload,  headers=headers)
@@ -44,3 +49,13 @@ def getImage(url):
     result = json.loads(raw.text)
     print(result['logs'], file=sys.stderr)
     return result
+
+def pastResults(prompt):
+    headers = {'content-type': 'application/json', 'Authorization': f'Token {key}'}
+    raw = requests.get('https://api.replicate.com/v1/predictions?cursor=cD0yMDIyLTExLTE0KzE4JTNBMTAlM0E1My4zNzA4MjAlMkIwMCUzQTAw', headers=headers)
+    result = json.loads(raw.text)
+    print(result, file=sys.stderr)
+    for r in result['results']:
+        if r['input']['prompt'] == prompt:
+            return r['output'][0]
+    return False
