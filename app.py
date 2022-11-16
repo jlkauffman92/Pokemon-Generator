@@ -16,7 +16,7 @@ def get_image():
     pr = pastResults(pinput)
 
     if pr:
-        return pr
+        return [pr]
 
     payload = json.dumps({"version": "3554d9e699e09693d3fa334a79c58be9a405dd021d3e11281256d53185868912",  "input": {"prompt" : pinput, "num_outputs" : 1}})
     headers = {'content-type': 'application/json', 'Authorization': f'Token {key}'}
@@ -52,7 +52,7 @@ def getImage(url):
 
 def pastResults(prompt):
     headers = {'content-type': 'application/json', 'Authorization': f'Token {key}'}
-    raw = requests.get('https://api.replicate.com/v1/predictions?cursor=cD0yMDIyLTExLTE0KzE4JTNBMTAlM0E1My4zNzA4MjAlMkIwMCUzQTAw', headers=headers)
+    raw = requests.get('https://api.replicate.com/v1/predictions', headers=headers)
     result = json.loads(raw.text)
     print(result, file=sys.stderr)
     for r in result['results']:
