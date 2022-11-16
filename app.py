@@ -17,14 +17,14 @@ def get_image():
     headers = {'content-type': 'application/json', 'Authorization': f'Token {key}'}
     res = requests.post('https://api.replicate.com/v1/predictions', data=payload,  headers=headers)
 
-    if res.status_code:
+    if res.status_code > 201:
         print(res.reason, file=sys.stderr)
         return ['https://replicate.delivery/pbxt/qMJKDzX8SmIoMhYsokEY7rRrgyCdlYph8NTozXR6dJmTUBAE/out-0.png']
 
-    prediction = res.status_code
+    prediction = json.loads(res.text)
     time.sleep(5)
 
-    image = getImage(prediction)
+    image = getImage(prediction['urls']['get'])
     trys = 0
     while image['status'] != 'succeeded':
         if trys > 45:
@@ -34,7 +34,7 @@ def get_image():
         print(trys, file=sys.stderr)
         trys = trys + 1
         time.sleep(1)
-        image = getImage(prediction)
+        image = getImage(prediction['urls']['get'])
 
     return image['output']
 
