@@ -17,7 +17,11 @@ def get_image():
     headers = {'content-type': 'application/json', 'Authorization': f'Token {key}'}
     res = requests.post('https://api.replicate.com/v1/predictions', data=payload,  headers=headers)
 
-    prediction = json.loads(res.text)['urls']['get']
+    if res.status_code:
+        print(res.reason, file=sys.stderr)
+        return ['https://replicate.delivery/pbxt/qMJKDzX8SmIoMhYsokEY7rRrgyCdlYph8NTozXR6dJmTUBAE/out-0.png']
+
+    prediction = res.status_code
     time.sleep(5)
 
     image = getImage(prediction)
