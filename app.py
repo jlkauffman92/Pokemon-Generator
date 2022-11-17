@@ -7,7 +7,7 @@ app = Flask(__name__)
 key = os.environ['POKEMON_API_KEY']
 
 @app.route("/")
-def hello_world():
+def index():
    return render_template('index.html')
 
 @app.route("/get_image", methods=['POST', 'GET'])
@@ -51,11 +51,16 @@ def getImage(url):
     return result
 
 def pastResults(prompt):
-    headers = {'content-type': 'application/json', 'Authorization': f'Token {key}'}
-    raw = requests.get('https://api.replicate.com/v1/predictions', headers=headers)
-    result = json.loads(raw.text)
-    print(result, file=sys.stderr)
-    for r in result['results']:
-        if r['input']['prompt'] == prompt:
-            return r['output'][0]
+    results = resComb('https://api.replicate.com/v1/predictions')
+    while type(results['next']) is str:    
+        for r in results['results']:
+            if r['input']['prompt'] == prompt:
+                return r['output']
+        results = resComb(results['next'])
     return False
+
+def resComb(url):
+    headers = {'content-type': 'application/json', 'Authorization': f'Token {key}'}
+    raw = requests.get(url, headers=headers)
+    result = json.loads(raw.text)
+    return result
